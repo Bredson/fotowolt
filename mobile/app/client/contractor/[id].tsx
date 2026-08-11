@@ -1,5 +1,5 @@
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { api, type User } from "../../../src/api";
 import { CONTRACTOR_STATUS_LABEL } from "../../../src/contractorStatus";
@@ -11,7 +11,7 @@ export default function ContractorDetailScreen() {
   const { user } = useSession();
   const [contractor, setContractor] = useState<User | null>(null);
   const [voivodeships, setVoivodeships] = useState<string[]>([]);
-  const [isDirty, setIsDirty] = useState(false);
+  const dirtyRef = useRef(false);
 
   const load = useCallback(() => {
     if (!user || !id) return;
@@ -19,17 +19,16 @@ export default function ContractorDetailScreen() {
       .then((all) => {
         const found = all.find((c) => c.id === id) ?? null;
         setContractor(found);
-        if (found && !isDirty) setVoivodeships(found.voivodeships);
+        if (found && !dirtyRef.current) setVoivodeships(found.voivodeships);
       })
       .catch(() => {});
-  }, [user, id, isDirty]);
+  }, [user, id]);
 
   useFocusEffect(useCallback(() => load(), [load]));
 
   const setStatus = async (action: "approve" | "reject") => {
     try {
       await api(`/contractors/${id}/${action}`, { method: "POST", userId: user!.id });
-      setIsDirty(false);
       load();
     } catch {
       Alert.alert("Błąd", "Nie udało się zmienić statusu.");
@@ -48,7 +47,7 @@ export default function ContractorDetailScreen() {
         body: { voivodeships },
       });
       Alert.alert("Zapisano", "Obszar działania zaktualizowany.");
-      setIsDirty(false);
+      dirtyRef.current = false;
       load();
     } catch {
       Alert.alert("Błąd", "Nie udało się zapisać województw.");
@@ -78,7 +77,7 @@ export default function ContractorDetailScreen() {
       )}
 
       <Text style={styles.section}>Obszar działania</Text>
-      <VoivodeshipPicker selected={voivodeships} onChange={(next) => { setVoivodeships(next); setIsDirty(true); }} />
+      <VoivodeshipPicker selected={voivodeships} onChange={(next) => { setVoivodeships(next); dirtyRef.current = true; }} />
       <Pressable style={styles.button} onPress={saveVoivodeships}>
         <Text style={styles.buttonText}>Zapisz województwa</Text>
       </Pressable>
