@@ -2,13 +2,8 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { api, type User } from "../../../src/api";
+import { CONTRACTOR_STATUS_LABEL } from "../../../src/contractorStatus";
 import { useSession } from "../../../src/session";
-
-const STATUS_LABEL: Record<string, string> = {
-  PENDING: "Oczekuje na akceptację",
-  APPROVED: "Zaakceptowany",
-  REJECTED: "Odrzucony",
-};
 
 export default function ContractorsScreen() {
   const { user } = useSession();
@@ -33,7 +28,7 @@ export default function ContractorsScreen() {
             <Text style={styles.cardTitle}>{item.companyName}</Text>
             <Text style={styles.meta}>{item.email}</Text>
             <Text style={[styles.status, item.status === "PENDING" && styles.statusPending]}>
-              {STATUS_LABEL[item.status]}
+              {CONTRACTOR_STATUS_LABEL[item.status]}
             </Text>
           </Pressable>
         )}
