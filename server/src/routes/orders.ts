@@ -3,6 +3,7 @@ import { prisma } from "../db";
 import { serializeOrder, serializeUser } from "../serialize";
 import { isValidVoivodeship } from "../voivodeships";
 import { requireClient, requireUser, requireApprovedContractor } from "../middleware/currentUser";
+import { notify } from "../notifications";
 
 export const ordersRouter = Router();
 
@@ -28,6 +29,21 @@ ordersRouter.post("/", requireClient, async (req, res) => {
       voivodeship,
     },
   });
+  const matchingContractors = await prisma.user.findMany({
+    where: {
+      role: "CONTRACTOR",
+      status: "APPROVED",
+      voivodeships: { contains: `"${voivodeship}"` },
+    },
+  });
+  for (const contractor of matchingContractors) {
+    await notify(
+      contractor.id,
+      "NEW_ORDER",
+      `Nowe zlecenie: ${order.kw} kW, ${order.voivodeship}.`,
+      order.id,
+    );
+  }
   res.status(201).json(serializeOrder(order));
 });
 
@@ -99,16 +115,31 @@ ordersRouter.post("/:id/bids", requireApprovedContractor, async (req, res) => {
   const bid = await prisma.bid.create({
     data: { orderId: order.id, contractorId: req.user!.id },
   });
+  await notify(
+    order.ownerId,
+    "BID_SUBMITTED",
+    `${req.user!.companyName} zgłosił gotowość realizacji zlecenia ${order.kw} kW (${order.voivodeship}).`,
+    order.id,
+  );
   res.status(201).json({ id: bid.id, status: bid.status, orderId: bid.orderId });
 });
 
 ordersRouter.post("/:id/decline", requireApprovedContractor, async (req, res) => {
   const order = await prisma.order.findUnique({ where: { id: req.params.id as string } });
   if (!order) return res.status(404).json({ error: "order not found" });
-  await prisma.orderDecline.upsert({
+  const existing = await prisma.orderDecline.findUnique({
     where: { orderId_contractorId: { orderId: order.id, contractorId: req.user!.id } },
-    update: {},
-    create: { orderId: order.id, contractorId: req.user!.id },
   });
+  if (!existing) {
+    await prisma.orderDecline.create({
+      data: { orderId: order.id, contractorId: req.user!.id },
+    });
+    await notify(
+      order.ownerId,
+      "ORDER_DECLINED",
+      `${req.user!.companyName} odrzucił zlecenie ${order.kw} kW (${order.voivodeship}).`,
+      order.id,
+    );
+  }
   res.json({ ok: true });
 });

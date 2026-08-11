@@ -5,6 +5,7 @@ import { authRouter } from "./routes/auth";
 import { contractorsRouter } from "./routes/contractors";
 import { ordersRouter } from "./routes/orders";
 import { bidsRouter } from "./routes/bids";
+import { notificationsRouter } from "./routes/notifications";
 
 export function createApp() {
   const app = express();
@@ -20,6 +21,7 @@ export function createApp() {
   app.use("/contractors", contractorsRouter);
   app.use("/orders", ordersRouter);
   app.use("/bids", bidsRouter);
+  app.use("/notifications", notificationsRouter);
 
   return app;
 }

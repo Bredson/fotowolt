@@ -2,6 +2,7 @@ import { Router } from "express";
 import { prisma } from "../db";
 import { serializeOrder } from "../serialize";
 import { requireUser, requireClient } from "../middleware/currentUser";
+import { notify } from "../notifications";
 
 export const bidsRouter = Router();
 
@@ -33,5 +34,11 @@ bidsRouter.post("/:id/accept", requireClient, async (req, res) => {
     }),
     prisma.order.update({ where: { id: bid.orderId }, data: { status: "ASSIGNED" } }),
   ]);
+  await notify(
+    bid.contractorId,
+    "ORDER_ASSIGNED",
+    `Przydzielono Ci zlecenie ${bid.order.kw} kW (${bid.order.voivodeship}).`,
+    bid.orderId,
+  );
   res.json({ ok: true });
 });
