@@ -6,6 +6,7 @@ export default function ClientTabs() {
       <Tabs.Screen name="orders" options={{ title: "Zlecenia" }} />
       <Tabs.Screen name="new-order" options={{ title: "Nowe zlecenie" }} />
       <Tabs.Screen name="contractors" options={{ title: "Wykonawcy" }} />
+      <Tabs.Screen name="notifications" options={{ title: "Powiadomienia" }} />
     </Tabs>
   );
 }
