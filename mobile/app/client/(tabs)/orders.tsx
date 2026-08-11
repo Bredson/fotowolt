@@ -21,7 +21,7 @@ export default function ClientOrdersScreen() {
       <FlatList
         data={orders}
         keyExtractor={(o) => o.id}
-        ListEmptyComponent={<Text style={styles.empty}>Brak zleceń. Dodaj pierwsze w zakładce „Nowe zlecenie".</Text>}
+        ListEmptyComponent={<Text style={styles.empty}>Brak zleceń. Dodaj pierwsze w zakładce „Nowe zlecenie”.</Text>}
         renderItem={({ item }) => (
           <Pressable style={styles.card} onPress={() => router.push(`/client/order/${item.id}`)}>
             <Text style={styles.cardTitle}>

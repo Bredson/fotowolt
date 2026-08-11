@@ -1,10 +1,10 @@
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { api, type BidForClient, type OrderDetailClient } from "../../../src/api";
+import { api, type BidForClient, type BidStatus, type OrderDetailClient } from "../../../src/api";
 import { useSession } from "../../../src/session";
 
-const BID_STATUS_LABEL: Record<string, string> = {
+const BID_STATUS_LABEL: Record<BidStatus, string> = {
   PENDING: "Oczekuje",
   ACCEPTED: "Wybrany",
   REJECTED: "Odrzucony",

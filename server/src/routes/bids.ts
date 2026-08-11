@@ -17,9 +17,8 @@ bidsRouter.get("/mine", requireUser, async (req, res) => {
 });
 
 bidsRouter.post("/:id/accept", requireClient, async (req, res) => {
-  const bidId = typeof req.params.id === "string" ? req.params.id : req.params.id[0];
   const bid = await prisma.bid.findUnique({
-    where: { id: bidId },
+    where: { id: req.params.id as string },
     include: { order: true },
   });
   if (!bid) return res.status(404).json({ error: "bid not found" });

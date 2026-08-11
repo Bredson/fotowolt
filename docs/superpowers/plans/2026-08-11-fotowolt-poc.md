@@ -6,7 +6,9 @@
 
 **Architecture:** Monorepo z dwoma pakietami: `server/` (Express + Prisma + SQLite — REST API, pełne TDD) i `mobile/` (Expo / React Native + Expo Router — dwie ścieżki UI zależne od roli). Autoryzacja PoC: logowanie samym e-mailem, tożsamość przekazywana nagłówkiem `x-user-id`. Powiadomienia systemowe = rekordy w tabeli `Notification` czytane w zakładce „Powiadomienia” (bez push); auto-odrzucenie zleceń po 3 dniach realizowane leniwym sweepem przy odczytach API.
 
-**Tech Stack:** Node 20+, TypeScript 5, Express 4, Prisma 5 (SQLite), Vitest + Supertest, Expo SDK (najnowsze), Expo Router, AsyncStorage.
+**Tech Stack:** Node 20+, TypeScript 7, Express 5 (automatycznie przekazuje odrzucone promisy z handlerów async do error handlera — dlatego brak `try/catch` wokół wywołań Prismy nie powoduje unhandled rejection), Prisma 7 (SQLite przez driver adapter `@prisma/adapter-better-sqlite3`), Vitest + Supertest, Expo SDK 57, Expo Router, AsyncStorage.
+
+> **Nota o toolchainie (ustalona w trakcie realizacji):** zainstalowane wersje major są nowsze niż zakładał pierwotny plan (Express 5 zamiast 4, Prisma 7 zamiast 5, TypeScript 7 zamiast 5). Konsekwencje widoczne w kodzie Tasków 1–2: `datasource` w `schema.prisma` nie zawiera już `url` (przeniesione do `server/prisma.config.ts`), `new PrismaClient()` wymaga jawnego driver adaptera, a skrypt `test` nie używa `--force-reset` (Prisma 7 blokuje destrukcyjne komendy wywołane przez agenta AI, a `resetDb()` i tak czyści tabele przed każdym testem). Prisma 7 rozwiązuje też względne ścieżki `file:` względem `process.cwd()` (czyli `server/`), stąd `file:./prisma/dev.db` i `file:./test.db`. Fragmenty kodu w Taskach 1–2 poniżej zostawiono jako historyczny zapis intencji — obowiązuje stan w repo.
 
 ## Global Constraints
 
@@ -140,7 +142,7 @@ test.db
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "test": "DATABASE_URL=file:../test.db prisma db push --force-reset && DATABASE_URL=file:../test.db vitest run",
+    "test": "DATABASE_URL=file:./test.db prisma db push && DATABASE_URL=file:./test.db vitest run",
     "typecheck": "tsc --noEmit",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts"
@@ -148,7 +150,7 @@ test.db
 }
 ```
 
-(Uwaga: `DATABASE_URL` w skrypcie `test` jest względny wobec `prisma/schema.prisma`, stąd `file:../test.db` — plik wyląduje w `server/test.db`. Skrypt `test` zadziała dopiero po Task 2, gdy powstanie schema; do tego czasu uruchamiaj `npx vitest run` bezpośrednio.)
+(Uwaga: w Prismie 7 `DATABASE_URL` jest względny wobec `process.cwd()`, czyli katalogu `server/` — `file:./test.db` ląduje w `server/test.db`. Skrypt `test` zadziała dopiero po Task 2, gdy powstanie schema; do tego czasu uruchamiaj `npx vitest run` bezpośrednio.)
 
 `server/tsconfig.json`:
 
@@ -353,7 +355,7 @@ model Notification {
 Utwórz też `server/.env`:
 
 ```env
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="file:./prisma/dev.db"
 ```
 
 i dopisz `.env` do `server/.gitignore`.

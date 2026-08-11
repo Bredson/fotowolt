@@ -1,10 +1,10 @@
 import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
-import { api, type MyBid } from "../../../src/api";
+import { api, type BidStatus, type MyBid } from "../../../src/api";
 import { useSession } from "../../../src/session";
 
-const STATUS_LABEL: Record<string, string> = {
+const STATUS_LABEL: Record<BidStatus, string> = {
   PENDING: "Oczekuje na decyzję",
   ACCEPTED: "Wybrano Cię do realizacji",
   REJECTED: "Wybrano innego wykonawcę",
