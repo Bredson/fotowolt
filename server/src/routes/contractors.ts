@@ -1,7 +1,9 @@
+import type { Response } from "express";
 import { Router } from "express";
 import { prisma } from "../db";
 import { serializeUser } from "../serialize";
 import { isValidVoivodeships } from "../voivodeships";
+import { requireClient } from "../middleware/currentUser";
 
 export const contractorsRouter = Router();
 
@@ -31,4 +33,46 @@ contractorsRouter.post("/register", async (req, res) => {
     },
   });
   res.status(201).json(serializeUser(user));
+});
+
+contractorsRouter.get("/", requireClient, async (req, res) => {
+  const status = typeof req.query.status === "string" ? req.query.status : undefined;
+  const contractors = await prisma.user.findMany({
+    where: { role: "CONTRACTOR", ...(status ? { status } : {}) },
+    orderBy: { email: "asc" },
+  });
+  res.json(contractors.map(serializeUser));
+});
+
+async function setContractorStatus(id: string, status: string, res: Response) {
+  const user = await prisma.user.findUnique({ where: { id } });
+  if (!user || user.role !== "CONTRACTOR") {
+    return res.status(404).json({ error: "contractor not found" });
+  }
+  const updated = await prisma.user.update({ where: { id }, data: { status } });
+  res.json(serializeUser(updated));
+}
+
+contractorsRouter.post("/:id/approve", requireClient, (req, res) =>
+  setContractorStatus(req.params.id as string, "APPROVED", res),
+);
+
+contractorsRouter.post("/:id/reject", requireClient, (req, res) =>
+  setContractorStatus(req.params.id as string, "REJECTED", res),
+);
+
+contractorsRouter.patch("/:id/voivodeships", requireClient, async (req, res) => {
+  const { voivodeships } = req.body ?? {};
+  if (!isValidVoivodeships(voivodeships)) {
+    return res.status(400).json({ error: "voivodeships must be a non-empty list of valid names" });
+  }
+  const user = await prisma.user.findUnique({ where: { id: req.params.id as string } });
+  if (!user || user.role !== "CONTRACTOR") {
+    return res.status(404).json({ error: "contractor not found" });
+  }
+  const updated = await prisma.user.update({
+    where: { id: user.id },
+    data: { voivodeships: JSON.stringify(voivodeships) },
+  });
+  res.json(serializeUser(updated));
 });
