@@ -24,8 +24,9 @@ Na fizycznym telefonie `localhost` nie zadziała — ustaw adres IP komputera w 
 
 ### Baza danych
 
-Serwer korzysta z Prisma 7 z adapterem `@prisma/adapter-better-sqlite3`, skonfigurowanym w
-`server/prisma.config.ts`. Adres bazy ustawiany jest przez `DATABASE_URL`:
+Serwer korzysta z Prisma 7 z adapterem `@prisma/adapter-libsql`. Ten sam adapter obsługuje
+lokalny plik SQLite (adres `file:`) i zdalną bazę Turso (adres `libsql://`), więc kod jest
+identyczny w obu środowiskach. Adres bazy ustawiany jest przez `DATABASE_URL`:
 
 - środowisko deweloperskie: `server/.env` wskazuje na `file:./prisma/dev.db`
   (plik `server/prisma/dev.db`),
@@ -70,3 +71,56 @@ sweep uruchamia się przy każdym odczycie listy zleceń (`GET /orders`) lub szc
 
     cd server && npm test        # prisma db push na server/test.db + vitest run
     cd mobile && npm run typecheck && npm test
+
+## Wdrożenie publiczne (Vercel + Turso)
+
+Aplikacja działa też jako strona web — ta sama baza kodu, bez Expo Go i bez sklepów.
+Tester otwiera link w dowolnej przeglądarce.
+
+### 1. Baza w Turso
+
+Prisma CLI **nie obsługuje** adresów `libsql://` (błąd P1013), więc `prisma db push` nie
+założy tabel w Turso. Służy do tego `npm run db:setup-remote`: generuje SQL z tego samego
+`prisma/schema.prisma` i wykonuje go klientem libSQL. Skrypt jest idempotentny — pomija
+obiekty, które już istnieją.
+
+    cd server
+    DATABASE_URL="libsql://<twoja-baza>.turso.io" TURSO_AUTH_TOKEN="<token>" npm run db:setup-remote
+    DATABASE_URL="libsql://<twoja-baza>.turso.io" TURSO_AUTH_TOKEN="<token>" npm run db:seed
+
+### 2. API na Vercelu
+
+Osobny projekt Vercel z katalogiem głównym **`server`**. Konfiguracja jest w
+`server/vercel.json`, a `server/api/index.ts` eksportuje aplikację Express jako funkcję
+serverless (`src/index.ts` pozostaje wejściem lokalnym i nie jest używany na Vercelu).
+
+Zmienne środowiskowe do ustawienia w panelu Vercela:
+
+- `DATABASE_URL` — `libsql://<twoja-baza>.turso.io`
+- `TURSO_AUTH_TOKEN` — token z Turso
+
+Turso komunikuje się po HTTP, więc nie wymaga puli połączeń — to dobrze pasuje do funkcji
+serverless, gdzie każde wywołanie może otworzyć własne połączenie.
+
+### 3. Front na Vercelu
+
+Drugi projekt Vercel z katalogiem głównym **`mobile`**. Konfiguracja w `mobile/vercel.json`
+buduje statyczny eksport (`npx expo export --platform web`) do katalogu `dist` i dodaje
+przekierowanie zwrotne wszystkich ścieżek na `index.html`. To przekierowanie jest konieczne:
+bez niego wejście wprost pod adres dynamiczny (np. `/client/order/<id>`) albo odświeżenie
+takiej strony kończy się błędem 404.
+
+Zmienna środowiskowa:
+
+- `EXPO_PUBLIC_API_URL` — publiczny adres API z punktu 2
+
+Uwaga: `EXPO_PUBLIC_*` jest **wkompilowywane w paczkę podczas budowania**, a nie czytane przy
+starcie. Zmiana adresu API wymaga ponownego zbudowania frontu.
+
+### Bezpieczeństwo — przeczytaj przed udostępnieniem
+
+PoC **nie ma uwierzytelniania**: logowanie polega na podaniu samego adresu e-mail, a tożsamość
+w kolejnych żądaniach to nagłówek `x-user-id`. Po wystawieniu publicznie **każdy, kto zna
+adres, może zalogować się jako zleceniodawca i działać jako dowolny użytkownik**. CORS jest
+otwarty na wszystkie domeny. Nie umieszczaj tam żadnych prawdziwych danych klientów ani firm
+i nie publikuj adresu szerzej, niż to konieczne.

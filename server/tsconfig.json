@@ -5,8 +5,15 @@
     "moduleResolution": "bundler",
     "strict": true,
     "skipLibCheck": true,
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "noEmit": true
   },
-  "include": ["src", "tests", "prisma"]
+  "include": [
+    "src",
+    "tests",
+    "prisma",
+    "api"
+  ]
 }
