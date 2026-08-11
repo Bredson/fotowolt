@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "test": "DATABASE_URL=file:../test.db prisma db push --force-reset && DATABASE_URL=file:../test.db vitest run",
+    "test": "DATABASE_URL=file:./test.db prisma db push && DATABASE_URL=file:./test.db vitest run",
     "typecheck": "tsc --noEmit",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts"
