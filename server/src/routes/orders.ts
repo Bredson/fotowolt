@@ -2,7 +2,7 @@ import { Router } from "express";
 import { prisma } from "../db";
 import { serializeOrder, serializeUser } from "../serialize";
 import { isValidVoivodeship } from "../voivodeships";
-import { requireClient, requireUser } from "../middleware/currentUser";
+import { requireClient, requireUser, requireApprovedContractor } from "../middleware/currentUser";
 
 export const ordersRouter = Router();
 
@@ -86,4 +86,29 @@ ordersRouter.get("/:id", requireUser, async (req, res) => {
     ...serializeOrder(order),
     myBid: myBid ? { id: myBid.id, status: myBid.status } : null,
   });
+});
+
+ordersRouter.post("/:id/bids", requireApprovedContractor, async (req, res) => {
+  const order = await prisma.order.findUnique({ where: { id: req.params.id as string } });
+  if (!order) return res.status(404).json({ error: "order not found" });
+  if (order.status !== "OPEN") return res.status(409).json({ error: "order is not open" });
+  const existing = await prisma.bid.findUnique({
+    where: { orderId_contractorId: { orderId: order.id, contractorId: req.user!.id } },
+  });
+  if (existing) return res.status(409).json({ error: "bid already submitted" });
+  const bid = await prisma.bid.create({
+    data: { orderId: order.id, contractorId: req.user!.id },
+  });
+  res.status(201).json({ id: bid.id, status: bid.status, orderId: bid.orderId });
+});
+
+ordersRouter.post("/:id/decline", requireApprovedContractor, async (req, res) => {
+  const order = await prisma.order.findUnique({ where: { id: req.params.id as string } });
+  if (!order) return res.status(404).json({ error: "order not found" });
+  await prisma.orderDecline.upsert({
+    where: { orderId_contractorId: { orderId: order.id, contractorId: req.user!.id } },
+    update: {},
+    create: { orderId: order.id, contractorId: req.user!.id },
+  });
+  res.json({ ok: true });
 });

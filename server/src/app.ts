@@ -4,6 +4,7 @@ import { currentUser } from "./middleware/currentUser";
 import { authRouter } from "./routes/auth";
 import { contractorsRouter } from "./routes/contractors";
 import { ordersRouter } from "./routes/orders";
+import { bidsRouter } from "./routes/bids";
 
 export function createApp() {
   const app = express();
@@ -18,6 +19,7 @@ export function createApp() {
   app.use("/auth", authRouter);
   app.use("/contractors", contractorsRouter);
   app.use("/orders", ordersRouter);
+  app.use("/bids", bidsRouter);
 
   return app;
 }
