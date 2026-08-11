@@ -1,6 +1,7 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { showMessage } from "../../../src/dialog";
 import { api, type OrderDetailContractor } from "../../../src/api";
 import { useSession } from "../../../src/session";
 
@@ -20,11 +21,9 @@ export default function ContractorOrderDetailScreen() {
   const handleBid = async () => {
     try {
       await api(`/orders/${id}/bids`, { method: "POST", userId: user!.id });
-      Alert.alert("Wysłano", "Zgłoszono gotowość realizacji zlecenia.", [
-        { text: "OK", onPress: () => router.back() },
-      ]);
+      showMessage("Wysłano", "Zgłoszono gotowość realizacji zlecenia.", () => router.back());
     } catch {
-      Alert.alert("Błąd", "Nie udało się zgłosić gotowości.");
+      showMessage("Błąd", "Nie udało się zgłosić gotowości.");
     }
   };
 
@@ -33,7 +32,7 @@ export default function ContractorOrderDetailScreen() {
       await api(`/orders/${id}/decline`, { method: "POST", userId: user!.id });
       router.back();
     } catch {
-      Alert.alert("Błąd", "Nie udało się odrzucić zlecenia.");
+      showMessage("Błąd", "Nie udało się odrzucić zlecenia.");
     }
   };
 

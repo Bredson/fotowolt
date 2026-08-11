@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, TextInput } from "react-native";
+import { showMessage } from "../src/dialog";
 import { api, ApiError, type User } from "../src/api";
 import { VoivodeshipPicker } from "../src/components/VoivodeshipPicker";
 
@@ -30,10 +31,10 @@ export default function RegisterScreen() {
         method: "POST",
         body: { email, companyName, contactName, phone, voivodeships },
       });
-      Alert.alert(
+      showMessage(
         "Zgłoszenie wysłane",
         "Twoje zgłoszenie czeka na akceptację zleceniodawcy. Po akceptacji zaloguj się tym adresem e-mail.",
-        [{ text: "OK", onPress: () => router.back() }],
+        () => router.back(),
       );
     } catch (e) {
       setError(

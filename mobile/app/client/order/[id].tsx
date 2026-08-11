@@ -1,6 +1,7 @@
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { confirmAction, showMessage } from "../../../src/dialog";
 import { api, type BidForClient, type BidStatus, type OrderDetailClient } from "../../../src/api";
 import { useSession } from "../../../src/session";
 
@@ -23,23 +24,18 @@ export default function ClientOrderDetailScreen() {
   useFocusEffect(useCallback(() => load(), [load]));
 
   const handleAccept = (bid: BidForClient) => {
-    Alert.alert(
+    confirmAction(
       "Przydzielenie zlecenia",
       `Zlecić realizację firmie ${bid.contractor.companyName}? Pozostałe zgłoszenia zostaną odrzucone, a wykonawca dostanie powiadomienie.`,
-      [
-        { text: "Anuluj", style: "cancel" },
-        {
-          text: "Zleć",
-          onPress: async () => {
-            try {
-              await api(`/bids/${bid.id}/accept`, { method: "POST", userId: user!.id });
-              load();
-            } catch {
-              Alert.alert("Błąd", "Nie udało się przydzielić zlecenia.");
-            }
-          },
-        },
-      ],
+      "Zleć",
+      async () => {
+        try {
+          await api(`/bids/${bid.id}/accept`, { method: "POST", userId: user!.id });
+          load();
+        } catch {
+          showMessage("Błąd", "Nie udało się przydzielić zlecenia.");
+        }
+      },
     );
   };
 

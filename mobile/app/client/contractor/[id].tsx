@@ -1,6 +1,7 @@
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useRef, useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { showMessage } from "../../../src/dialog";
 import { api, type User } from "../../../src/api";
 import { CONTRACTOR_STATUS_LABEL } from "../../../src/contractorStatus";
 import { VoivodeshipPicker } from "../../../src/components/VoivodeshipPicker";
@@ -31,13 +32,13 @@ export default function ContractorDetailScreen() {
       await api(`/contractors/${id}/${action}`, { method: "POST", userId: user!.id });
       load();
     } catch {
-      Alert.alert("Błąd", "Nie udało się zmienić statusu.");
+      showMessage("Błąd", "Nie udało się zmienić statusu.");
     }
   };
 
   const saveVoivodeships = async () => {
     if (voivodeships.length === 0) {
-      Alert.alert("Błąd", "Wykonawca musi mieć co najmniej jedno województwo.");
+      showMessage("Błąd", "Wykonawca musi mieć co najmniej jedno województwo.");
       return;
     }
     try {
@@ -46,11 +47,11 @@ export default function ContractorDetailScreen() {
         userId: user!.id,
         body: { voivodeships },
       });
-      Alert.alert("Zapisano", "Obszar działania zaktualizowany.");
+      showMessage("Zapisano", "Obszar działania zaktualizowany.");
       dirtyRef.current = false;
       load();
     } catch {
-      Alert.alert("Błąd", "Nie udało się zapisać województw.");
+      showMessage("Błąd", "Nie udało się zapisać województw.");
     }
   };
 
