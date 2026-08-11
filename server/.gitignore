@@ -1,0 +1,4 @@
+node_modules/
+prisma/dev.db
+test.db
+*.db-journal
