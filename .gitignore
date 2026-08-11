@@ -1,3 +1,7 @@
 node_modules/
 .DS_Store
 .superpowers/
+test.db
+*.db-journal
+*.db-wal
+*.db-shm

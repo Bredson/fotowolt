@@ -1,0 +1,68 @@
+datasource db {
+  provider = "sqlite"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  role         String // "CLIENT" | "CONTRACTOR"
+  status       String         @default("APPROVED") // contractors start as "PENDING"
+  companyName  String?
+  contactName  String?
+  phone        String?
+  voivodeships String         @default("[]") // JSON array of voivodeship names
+  orders        Order[]
+  bids          Bid[]
+  declines      OrderDecline[]
+  notifications Notification[]
+}
+
+model Order {
+  id          String         @id @default(cuid())
+  ownerId     String
+  owner       User           @relation(fields: [ownerId], references: [id])
+  kw          Float
+  description String
+  address     String
+  voivodeship String
+  status      String         @default("OPEN") // "OPEN" | "ASSIGNED"
+  createdAt   DateTime       @default(now())
+  bids        Bid[]
+  declines    OrderDecline[]
+}
+
+model Bid {
+  id           String   @id @default(cuid())
+  orderId      String
+  order        Order    @relation(fields: [orderId], references: [id])
+  contractorId String
+  contractor   User     @relation(fields: [contractorId], references: [id])
+  status       String   @default("PENDING") // "PENDING" | "ACCEPTED" | "REJECTED"
+  createdAt    DateTime @default(now())
+
+  @@unique([orderId, contractorId])
+}
+
+model OrderDecline {
+  id           String @id @default(cuid())
+  orderId      String
+  order        Order  @relation(fields: [orderId], references: [id])
+  contractorId String
+  contractor   User   @relation(fields: [contractorId], references: [id])
+
+  @@unique([orderId, contractorId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String // "NEW_ORDER" | "BID_SUBMITTED" | "ORDER_DECLINED" | "ORDER_ASSIGNED"
+  message   String
+  orderId   String? // celowo bez relacji — samo id do nawigacji
+  createdAt DateTime @default(now())
+}
