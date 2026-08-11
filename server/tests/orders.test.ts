@@ -103,4 +103,20 @@ describe("GET /orders/:id", () => {
     const res = await request(app).get("/orders/nie-ma").set("x-user-id", client.id);
     expect(res.status).toBe(404);
   });
+
+  it("forbids a PENDING contractor from viewing an order", async () => {
+    const client = await createClient();
+    const order = await createOrder(client.id);
+    const contractor = await createContractor("p@test.pl", { status: "PENDING" });
+    const res = await request(app).get(`/orders/${order.id}`).set("x-user-id", contractor.id);
+    expect(res.status).toBe(403);
+  });
+
+  it("forbids a non-owning client from viewing another client's order", async () => {
+    const owner = await createClient("owner@test.pl");
+    const other = await createClient("other@test.pl");
+    const order = await createOrder(owner.id);
+    const res = await request(app).get(`/orders/${order.id}`).set("x-user-id", other.id);
+    expect(res.status).toBe(403);
+  });
 });

@@ -78,6 +78,7 @@ ordersRouter.get("/:id", requireUser, async (req, res) => {
       declines: declines.map((d) => ({ id: d.id, contractor: serializeUser(d.contractor) })),
     });
   }
+  if (user.status !== "APPROVED") return res.status(403).json({ error: "forbidden" });
   const myBid = await prisma.bid.findUnique({
     where: { orderId_contractorId: { orderId: order.id, contractorId: user.id } },
   });
