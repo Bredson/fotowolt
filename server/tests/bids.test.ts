@@ -97,3 +97,51 @@ describe("GET /bids/mine", () => {
     expect(res.status).toBe(403);
   });
 });
+
+describe("POST /bids/:id/accept", () => {
+  it("accepts one bid, rejects the rest and assigns the order", async () => {
+    const client = await createClient();
+    const order = await createOrder(client.id);
+    const c1 = await createContractor("c1@test.pl");
+    const c2 = await createContractor("c2@test.pl");
+    const bid1 = await prisma.bid.create({ data: { orderId: order.id, contractorId: c1.id } });
+    const bid2 = await prisma.bid.create({ data: { orderId: order.id, contractorId: c2.id } });
+
+    const res = await request(app).post(`/bids/${bid1.id}/accept`).set("x-user-id", client.id);
+    expect(res.status).toBe(200);
+
+    const updated1 = await prisma.bid.findUniqueOrThrow({ where: { id: bid1.id } });
+    const updated2 = await prisma.bid.findUniqueOrThrow({ where: { id: bid2.id } });
+    const updatedOrder = await prisma.order.findUniqueOrThrow({ where: { id: order.id } });
+    expect(updated1.status).toBe("ACCEPTED");
+    expect(updated2.status).toBe("REJECTED");
+    expect(updatedOrder.status).toBe("ASSIGNED");
+  });
+
+  it("forbids a client who does not own the order", async () => {
+    const owner = await createClient("owner@test.pl");
+    const other = await createClient("other@test.pl");
+    const order = await createOrder(owner.id);
+    const c1 = await createContractor("c1@test.pl");
+    const bid = await prisma.bid.create({ data: { orderId: order.id, contractorId: c1.id } });
+
+    const res = await request(app).post(`/bids/${bid.id}/accept`).set("x-user-id", other.id);
+    expect(res.status).toBe(403);
+  });
+
+  it("returns 409 when the order is already assigned", async () => {
+    const client = await createClient();
+    const order = await createOrder(client.id, { status: "ASSIGNED" });
+    const c1 = await createContractor("c1@test.pl");
+    const bid = await prisma.bid.create({ data: { orderId: order.id, contractorId: c1.id } });
+
+    const res = await request(app).post(`/bids/${bid.id}/accept`).set("x-user-id", client.id);
+    expect(res.status).toBe(409);
+  });
+
+  it("returns 404 for unknown bid", async () => {
+    const client = await createClient();
+    const res = await request(app).post("/bids/nie-ma/accept").set("x-user-id", client.id);
+    expect(res.status).toBe(404);
+  });
+});
