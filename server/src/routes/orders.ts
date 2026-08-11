@@ -4,6 +4,7 @@ import { serializeOrder, serializeUser } from "../serialize";
 import { isValidVoivodeship } from "../voivodeships";
 import { requireClient, requireUser, requireApprovedContractor } from "../middleware/currentUser";
 import { notify } from "../notifications";
+import { autoDeclineStaleOrders } from "../autoDecline";
 
 export const ordersRouter = Router();
 
@@ -48,6 +49,7 @@ ordersRouter.post("/", requireClient, async (req, res) => {
 });
 
 ordersRouter.get("/", requireUser, async (req, res) => {
+  await autoDeclineStaleOrders();
   const user = req.user!;
   if (user.role === "CLIENT") {
     const orders = await prisma.order.findMany({
@@ -74,6 +76,7 @@ ordersRouter.get("/", requireUser, async (req, res) => {
 });
 
 ordersRouter.get("/:id", requireUser, async (req, res) => {
+  await autoDeclineStaleOrders();
   const order = await prisma.order.findUnique({ where: { id: req.params.id as string } });
   if (!order) return res.status(404).json({ error: "order not found" });
   const user = req.user!;
