@@ -2,6 +2,9 @@
 
 Aplikacja mobilna (PoC) łącząca zleceniodawcę instalacji PV z firmami wykonawczymi.
 
+**Szukasz instrukcji obsługi dla użytkownika (nie dewelopera)?**
+→ [docs/QUICK-START.md](docs/QUICK-START.md) — krok po kroku dla zleceniodawcy i firmy wykonawczej.
+
 ## Uruchomienie
 
 Terminal 1 — API:
