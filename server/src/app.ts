@@ -1,11 +1,11 @@
 import express from "express";
 import cors from "cors";
-import { currentUser } from "./middleware/currentUser";
-import { authRouter } from "./routes/auth";
-import { contractorsRouter } from "./routes/contractors";
-import { ordersRouter } from "./routes/orders";
-import { bidsRouter } from "./routes/bids";
-import { notificationsRouter } from "./routes/notifications";
+import { currentUser } from "./middleware/currentUser.js";
+import { authRouter } from "./routes/auth.js";
+import { contractorsRouter } from "./routes/contractors.js";
+import { ordersRouter } from "./routes/orders.js";
+import { bidsRouter } from "./routes/bids.js";
+import { notificationsRouter } from "./routes/notifications.js";
 
 export function createApp() {
   const app = express();

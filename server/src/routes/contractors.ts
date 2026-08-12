@@ -1,9 +1,9 @@
 import type { Response } from "express";
 import { Router } from "express";
-import { prisma } from "../db";
-import { serializeUser } from "../serialize";
-import { isValidVoivodeships } from "../voivodeships";
-import { requireClient } from "../middleware/currentUser";
+import { prisma } from "../db.js";
+import { serializeUser } from "../serialize.js";
+import { isValidVoivodeships } from "../voivodeships.js";
+import { requireClient } from "../middleware/currentUser.js";
 
 export const contractorsRouter = Router();
 

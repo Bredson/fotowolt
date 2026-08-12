@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import request from "supertest";
-import { createApp } from "../src/app";
-import { prisma } from "../src/db";
-import { createClient, createContractor, createOrder, resetDb } from "./helpers";
+import { createApp } from "../src/app.js";
+import { prisma } from "../src/db.js";
+import { createClient, createContractor, createOrder, resetDb } from "./helpers.js";
 
 const app = createApp();
 

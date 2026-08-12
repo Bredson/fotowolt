@@ -1,4 +1,4 @@
-import { prisma } from "../src/db";
+import { prisma } from "../src/db.js";
 
 export async function resetDb() {
   await prisma.notification.deleteMany();

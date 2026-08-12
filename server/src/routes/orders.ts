@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { prisma } from "../db";
-import { serializeOrder, serializeUser } from "../serialize";
-import { isValidVoivodeship } from "../voivodeships";
-import { requireClient, requireUser, requireApprovedContractor } from "../middleware/currentUser";
-import { notify } from "../notifications";
-import { autoDeclineStaleOrders } from "../autoDecline";
+import { prisma } from "../db.js";
+import { serializeOrder, serializeUser } from "../serialize.js";
+import { isValidVoivodeship } from "../voivodeships.js";
+import { requireClient, requireUser, requireApprovedContractor } from "../middleware/currentUser.js";
+import { notify } from "../notifications.js";
+import { autoDeclineStaleOrders } from "../autoDecline.js";
 
 export const ordersRouter = Router();
 

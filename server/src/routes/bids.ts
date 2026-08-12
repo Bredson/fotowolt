@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { prisma } from "../db";
-import { serializeOrder } from "../serialize";
-import { requireUser, requireClient } from "../middleware/currentUser";
-import { notify } from "../notifications";
+import { prisma } from "../db.js";
+import { serializeOrder } from "../serialize.js";
+import { requireUser, requireClient } from "../middleware/currentUser.js";
+import { notify } from "../notifications.js";
 
 export const bidsRouter = Router();
 

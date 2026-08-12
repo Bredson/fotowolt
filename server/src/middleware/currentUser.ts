@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import type { User } from "@prisma/client";
-import { prisma } from "../db";
+import { prisma } from "../db.js";
 
 declare module "express-serve-static-core" {
   interface Request {

@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { prisma } from "../db";
-import { serializeUser } from "../serialize";
-import { requireUser } from "../middleware/currentUser";
+import { prisma } from "../db.js";
+import { serializeUser } from "../serialize.js";
+import { requireUser } from "../middleware/currentUser.js";
 
 export const authRouter = Router();
 

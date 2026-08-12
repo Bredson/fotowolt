@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { prisma } from "../db";
-import { requireUser } from "../middleware/currentUser";
+import { prisma } from "../db.js";
+import { requireUser } from "../middleware/currentUser.js";
 
 export const notificationsRouter = Router();
 

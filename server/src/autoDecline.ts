@@ -1,5 +1,5 @@
-import { prisma } from "./db";
-import { notify } from "./notifications";
+import { prisma } from "./db.js";
+import { notify } from "./notifications.js";
 
 export const AUTO_DECLINE_DAYS = 3;
 

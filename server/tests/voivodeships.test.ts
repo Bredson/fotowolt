@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { VOIVODESHIPS, isValidVoivodeships } from "../src/voivodeships";
+import { VOIVODESHIPS, isValidVoivodeships } from "../src/voivodeships.js";
 
 describe("voivodeships", () => {
   it("contains all 16 voivodeships", () => {
