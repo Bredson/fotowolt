@@ -9,7 +9,7 @@
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "db:setup-remote": "tsx scripts/setup-turso.ts",
-    "vercel-build": "prisma generate"
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@libsql/client": "^0.17.4",
