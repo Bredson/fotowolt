@@ -64,6 +64,28 @@ async function main() {
 }
 
 main().catch((error) => {
+  const status = (error as { cause?: { status?: number } })?.cause?.status;
+  if (status === 401 || status === 400) {
+    console.error(
+      [
+        "",
+        status === 401
+          ? "Turso odrzucił token (HTTP 401) — token ma poprawny format, ale nie daje dostępu do tej bazy."
+          : "Turso odrzucił token (HTTP 400) — token jest zniekształcony (np. ucięty przy kopiowaniu).",
+        "",
+        "Najczęstsza przyczyna: użyty został token konta (API / platform token)",
+        "zamiast tokenu bazy danych. To dwie różne rzeczy — do połączenia z bazą",
+        "potrzebny jest token bazy, wygenerowany poleceniem:",
+        "",
+        "    turso db tokens create <nazwa-bazy>",
+        "",
+        "Nazwę bazy sprawdzisz przez `turso db list`. Upewnij się też, że token",
+        "nie wygasł i że nie skopiował się razem ze spacją lub znakiem nowej linii.",
+        "",
+      ].join("\n"),
+    );
+    process.exit(1);
+  }
   console.error(error);
   process.exit(1);
 });
