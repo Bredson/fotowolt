@@ -45,13 +45,19 @@ z `server/.env`.
 
 ## Scenariusz demo
 
-1. Zaloguj się jako `biuro@fotowolt.pl`, w zakładce „Nowe zlecenie” dodaj zlecenie
-   (kW, opis, adres, województwo).
-2. Wyloguj się, zarejestruj firmę wykonawczą z tym samym województwem, spróbuj się zalogować —
-   ponieważ zgłoszenie czeka na akceptację, zobaczysz ekran oczekiwania
-   „Twoje zgłoszenie czeka na akceptację zleceniodawcy” (z przyciskiem „Sprawdź ponownie”).
-3. Zaloguj się jako zleceniodawca, w zakładce „Wykonawcy” otwórz nowo zarejestrowaną firmę
-   i wciśnij „Zaakceptuj”.
+**Kolejność kroków ma znaczenie.** Powiadomienie o nowym zleceniu trafia tylko do firm, które
+są już zaakceptowane w momencie jego publikacji. Jeśli najpierw dodasz zlecenie, a dopiero
+potem zaakceptujesz firmę, firma zobaczy zlecenie na liście, ale **nie dostanie o nim
+powiadomienia**. Dlatego w scenariuszu demo firma rejestruje się i jest akceptowana najpierw.
+
+1. Zarejestruj firmę wykonawczą („Nie masz konta? Zarejestruj firmę wykonawczą”), podaj dane
+   i zaznacz województwo. Spróbuj się zalogować — ponieważ zgłoszenie czeka na akceptację,
+   zobaczysz ekran oczekiwania „Twoje zgłoszenie czeka na akceptację zleceniodawcy”
+   (z przyciskiem „Sprawdź ponownie”).
+2. Zaloguj się jako `biuro@fotowolt.pl`, w zakładce „Wykonawcy” otwórz nowo zarejestrowaną
+   firmę i wciśnij „Zaakceptuj”.
+3. Wciąż jako zleceniodawca, w zakładce „Nowe zlecenie” dodaj zlecenie (kW, opis, adres,
+   województwo — to samo, które zaznaczyła firma).
 4. Zaloguj się jako firma — w zakładce „Powiadomienia” pojawi się powiadomienie o nowym
    zleceniu, samo zlecenie widoczne jest na liście w zakładce „Zlecenia”; otwórz je i wciśnij
    „Zgłoś gotowość” (albo „Odrzuć”, jeśli firma nie jest zainteresowana).
