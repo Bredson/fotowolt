@@ -1,6 +1,7 @@
 import { Redirect, Stack } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { api, type User } from "../../src/api";
+import { HelpButton } from "../../src/components/HelpButton";
 import { useSession } from "../../src/session";
 
 export default function ContractorLayout() {
@@ -29,6 +30,7 @@ export default function ContractorLayout() {
             <Text style={styles.buttonText}>Sprawdź ponownie</Text>
           </Pressable>
         )}
+        <HelpButton />
         <Pressable onPress={logout}>
           <Text style={styles.logout}>Wyloguj</Text>
         </Pressable>
@@ -37,7 +39,7 @@ export default function ContractorLayout() {
   }
 
   return (
-    <Stack>
+    <Stack screenOptions={{ headerRight: () => <HelpButton /> }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="order/[id]" options={{ title: "Szczegóły zlecenia" }} />
     </Stack>

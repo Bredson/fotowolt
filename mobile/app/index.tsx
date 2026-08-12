@@ -2,6 +2,7 @@ import { Link, Redirect } from "expo-router";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { api, ApiError, type User } from "../src/api";
+import { HelpButton } from "../src/components/HelpButton";
 import { useSession } from "../src/session";
 
 export default function LoginScreen() {
@@ -52,6 +53,9 @@ export default function LoginScreen() {
       <Link href="/register" style={styles.link}>
         Nie masz konta? Zarejestruj firmę wykonawczą
       </Link>
+      <View style={styles.help}>
+        <HelpButton />
+      </View>
     </View>
   );
 }
@@ -65,4 +69,5 @@ const styles = StyleSheet.create({
   button: { backgroundColor: "#1a7a3a", borderRadius: 8, padding: 14, alignItems: "center" },
   buttonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
   link: { textAlign: "center", color: "#1a7a3a", marginTop: 8 },
+  help: { alignItems: "center", marginTop: 4 },
 });
